@@ -18,12 +18,13 @@ export default class Sketch {
     this.camera = new THREE.PerspectiveCamera(
       70,
       this.width / this.height,
-      0.01,
-      10
+      100,
+      2000
     );
-    this.camera.position.z = 1;
+    this.camera.position.z = 600;
+    this.camera.fov = 2 * Math.atan(this.height / 2 / 600) * (180 / Math.PI); // 3D上とブラウザ上の単位をあわせる
 
-    this.renderer = new THREE.WebGLRenderer({ antialias: true });
+    this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     this.renderer.setSize(this.width, this.height);
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
@@ -49,8 +50,8 @@ export default class Sketch {
   }
 
   addObjects() {
-    // this.geometry = new THREE.PlaneBufferGeometry(4, 4, 150, 150);
-    this.geometry = new THREE.SphereBufferGeometry(0.4, 100, 100);
+    this.geometry = new THREE.PlaneBufferGeometry(200, 100, 10, 10);
+    // this.geometry = new THREE.SphereBufferGeometry(0.4, 100, 100);
     this.material = new THREE.MeshNormalMaterial();
 
     this.material = new THREE.ShaderMaterial({

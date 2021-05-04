@@ -86,7 +86,7 @@ void main() {
 
   // newposition.z += .05 * sin(20. * newposition.x);
 
-  float noise = cnoise(10. * vec3(position.x , position.y , position.z * time/50.));
+  float noise = cnoise(10. * vec3(position.x , position.y , position.z * time/5.));
   // float noise = cnoise(vec3(position.x * 4., position.y * 4. + time/5. , 0.));
   // newposition.z += 0.1 * noise;
 
