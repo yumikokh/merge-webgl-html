@@ -82,7 +82,12 @@ export default class Sketch {
         1,
         1
       );
-      const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+      const texture = new THREE.Texture(img);
+      texture.needsUpdate = true;
+      const material = new THREE.MeshBasicMaterial({
+        // color: 0xff0000,
+        map: texture,
+      });
       const mesh = new THREE.Mesh(geometry, material);
       this.scene.add(mesh);
 
