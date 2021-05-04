@@ -30,6 +30,10 @@ export default class Sketch {
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.dom.appendChild(this.renderer.domElement);
 
+    this.images = [...document.querySelectorAll("img")];
+
+    this.addImages();
+    this.setPosition();
     this.resize();
     this.setupResize();
 
@@ -47,6 +51,38 @@ export default class Sketch {
     this.renderer.setSize(this.width, this.height);
     this.camera.aspect = this.width / this.height;
     this.camera.updateProjectionMatrix();
+  }
+
+  addImages() {
+    this.imageStore = this.images.map((img) => {
+      const bounds = img.getBoundingClientRect();
+
+      const geometry = new THREE.PlaneBufferGeometry(
+        bounds.width,
+        bounds.height,
+        1,
+        1
+      );
+      const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+      const mesh = new THREE.Mesh(geometry, material);
+      this.scene.add(mesh);
+
+      return {
+        img,
+        mesh,
+        top: bounds.top,
+        left: bounds.left,
+        width: bounds.width,
+        height: bounds.height,
+      };
+    });
+  }
+
+  setPosition() {
+    this.imageStore.forEach((o) => {
+      o.mesh.position.x = o.left - this.width / 2 + o.width / 2;
+      o.mesh.position.y = -o.top + this.height / 2 - o.height / 2;
+    });
   }
 
   addObjects() {
