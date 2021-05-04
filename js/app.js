@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import imagesLoaded from "imagesloaded";
 import FontFaceObserver from "fontfaceobserver";
+import Scroll from "./scroll";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import fragment from "./shader/fragment.glsl";
 import vertex from "./shader/vertex.glsl";
@@ -49,7 +50,10 @@ export default class Sketch {
       );
     });
 
+    this.currentScroll = 0;
+
     Promise.all([fontOpen, fontPlayfair, preloadImages]).then(() => {
+      this.scroll = new Scroll();
       this.addImages();
       this.setPosition();
       this.resize();
@@ -57,6 +61,10 @@ export default class Sketch {
 
       this.addObjects();
       this.render();
+      window.addEventListener("scroll", () => {
+        this.currentScroll = scrollY;
+        this.setPosition();
+      });
     });
   }
 
@@ -105,7 +113,8 @@ export default class Sketch {
   setPosition() {
     this.imageStore.forEach((o) => {
       o.mesh.position.x = o.left - this.width / 2 + o.width / 2;
-      o.mesh.position.y = -o.top + this.height / 2 - o.height / 2;
+      o.mesh.position.y =
+        this.currentScroll - o.top + this.height / 2 - o.height / 2;
     });
   }
 
@@ -132,10 +141,14 @@ export default class Sketch {
   render() {
     this.time += 0.05;
 
-    this.mesh.rotation.x = this.time / 2000;
-    this.mesh.rotation.y = this.time / 1000;
+    this.scroll.render();
+    this.currentScroll = this.scroll.scrollToRender;
+    this.setPosition();
 
-    this.material.uniforms.time.value = this.time;
+    // this.mesh.rotation.x = this.time / 2000;
+    // this.mesh.rotation.y = this.time / 1000;
+
+    // this.material.uniforms.time.value = this.time;
 
     this.renderer.render(this.scene, this.camera);
 
