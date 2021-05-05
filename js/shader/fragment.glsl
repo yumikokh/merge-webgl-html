@@ -1,7 +1,8 @@
 varying vec2 vUv;
 varying float vNoise;
 
-uniform sampler2D oceanTexture;
+// uniform sampler2D oceanTexture;
+uniform sampler2D uImage;
 uniform float time;
 
 
@@ -17,10 +18,12 @@ void main()	{
 	newUV = vec2(newUV.x, newUV.y + .01 * sin(newUV.x*10. + time));
 	// newUV = vec2(newUV.x, newUV.y + .04 * noise);
 
-	vec4 oceanView = texture2D(oceanTexture, newUV);
+	vec4 oceanView = texture2D(uImage, newUV);
 
-	gl_FragColor = vec4(finalColor ,1.);
+	// gl_FragColor = vec4(finalColor ,1.);
 	// gl_FragColor = vec4(vUv, 0. ,1.);
+	gl_FragColor = oceanView;
+	gl_FragColor.rgb += .05 * vec3(vNoise);
 	// gl_FragColor = oceanView + .5 * vec4(vNoise);
-	// gl_FragColor = vec4(vNoise);
+	// gl_FragColor = vec4(vNoise, 0., 0., 1.);
 }
