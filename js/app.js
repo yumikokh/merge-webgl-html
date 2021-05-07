@@ -9,6 +9,11 @@ import vertex from "./shader/vertex.glsl";
 
 import ocean from "../img/ocean.jpg";
 
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
+import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
+import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass";
+
 export default class Sketch {
   constructor(opt) {
     this.time = 0;
@@ -65,6 +70,7 @@ export default class Sketch {
       this.resize();
       this.setupResize();
 
+      this.composerPass();
       // this.addObjects();
       this.render();
       window.addEventListener("scroll", () => {
@@ -72,6 +78,47 @@ export default class Sketch {
         this.setPosition();
       });
     });
+  }
+
+  composerPass() {
+    this.composer = new EffectComposer(this.renderer);
+    this.renderPass = new RenderPass(this.scene, this.camera);
+    this.composer.addPass(this.renderPass);
+
+    const counter = 0.0;
+    this.myEffect = {
+      uniforms: {
+        tDiffuse: { value: null },
+        scrollSpeed: { value: null },
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform sampler2D tDiffuse;
+        varying vec2 vUv;
+        uniform float scrollSpeed;
+
+        void main() {
+          vec2 newUV = vUv;
+          float area = smoothstep(0.4, 0., vUv.y);
+          area = pow(area, 4.);
+          // newUV.x += (vUv.x - .5) * .5 * vUv.y;
+          newUV.x -= (vUv.x - .5) * .5 * area * scrollSpeed;
+          gl_FragColor = texture2D(tDiffuse, newUV);
+          // gl_FragColor = vec4(area, 0., 0., 1.);
+        }
+      `,
+    };
+
+    this.customPass = new ShaderPass(this.myEffect);
+    this.customPass.renderToScreen = true;
+
+    this.composer.addPass(this.customPass);
   }
 
   mouseMovement() {
@@ -205,6 +252,7 @@ export default class Sketch {
     this.scroll.render();
     this.currentScroll = this.scroll.scrollToRender;
     this.setPosition();
+    this.customPass.uniforms.scrollSpeed.value = this.scroll.speedTarget;
 
     // this.mesh.rotation.x = this.time / 2000;
     // this.mesh.rotation.y = this.time / 1000;
@@ -215,7 +263,8 @@ export default class Sketch {
       m.uniforms.time.value = this.time;
     });
 
-    this.renderer.render(this.scene, this.camera);
+    // this.renderer.render(this.scene, this.camera);
+    this.composer.render();
 
     requestAnimationFrame(this.render.bind(this));
   }
