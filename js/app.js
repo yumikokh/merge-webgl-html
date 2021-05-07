@@ -35,6 +35,7 @@ export default class Sketch {
 
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     this.renderer.setSize(this.width, this.height);
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // ジャギらなくなる
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.dom.appendChild(this.renderer.domElement);
@@ -269,6 +270,8 @@ export default class Sketch {
     this.materials.forEach((m) => {
       m.uniforms.time.value = this.time;
     });
+
+    // TODO: 必要なときだけレンダリング
 
     // this.renderer.render(this.scene, this.camera);
     this.composer.render();
