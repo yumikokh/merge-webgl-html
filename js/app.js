@@ -145,6 +145,17 @@ export default class Sketch {
   }
 
   resize() {
+    this.imageStore.forEach((o) => {
+      const bounds = o.img.getBoundingClientRect();
+
+      o.width = bounds.width;
+      o.height = bounds.height;
+      o.left = bounds.left;
+      o.top = bounds.top;
+
+      o.mesh.scale.set(bounds.width, bounds.height, 1);
+    });
+
     this.width = this.dom.offsetWidth;
     this.height = this.dom.offsetHeight;
     this.renderer.setSize(this.width, this.height);
@@ -172,12 +183,7 @@ export default class Sketch {
     this.imageStore = this.images.map((img) => {
       const bounds = img.getBoundingClientRect();
 
-      const geometry = new THREE.PlaneBufferGeometry(
-        bounds.width,
-        bounds.height,
-        10,
-        10
-      );
+      const geometry = new THREE.PlaneBufferGeometry(1, 1, 10, 10);
       const texture = new THREE.Texture(img);
       texture.needsUpdate = true;
 
@@ -205,6 +211,7 @@ export default class Sketch {
       material.uniforms.uImage.value = texture;
 
       const mesh = new THREE.Mesh(geometry, material);
+      mesh.scale.set(bounds.width, bounds.height, 1);
       this.scene.add(mesh);
 
       return {
